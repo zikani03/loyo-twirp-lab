@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+option go_package="/loyo";
+
+enum EventType {
+	UNSPECIFIED = 0;
+	PHYSICAL_PURCHASE = 1;
+	DIGITAL_PURCHASE = 2;
+	LOAN_DISBURSEMENT = 3;
+	OVERDUE_LOAN_CHARGE = 4;
+	WITHDRAWAL = 5;
+	SERVICE_FEE = 6;
+	TRANSFER = 7;
+	REFUND = 8;
+	DEPOSIT = 9;
+	RECHARGE = 10;
+	COMPETITION_REWARD = 11;
+	UNSPECIFIED_DEBIT = 12;
+	UNSPECIFIED_CREDIT = 13;
+}
+
+message LoyoEvent {
+	EventType event_type = 1;
+	string transaction_id = 2;
+	string product_sku = 3;
+	string service_id = 4;
+	string account_id = 5;
+	string currency = 6;
+	double amount = 7;
+	double tax_applicable = 8;
+	double tax_charged = 9;
+	// For Money transfer events
+	string recipient_account_id = 10;
+	bool flagged = 11;
+	int64 timestamp = 12;
+	string service_provider_id = 13;
+}
+
+message LoyoIngestRequest {
+	string application_id = 1;
+	repeated LoyoEvent events = 2;
+}
+
+message LoyoIngestResponse {
+	string loyo_txn_id = 1;
+	string status = 2;
+	int32 valid_events = 3;
+	int32 invalid_events = 4;
+}
+
+message ErrorResponse {
+	int32 code = 1;
+	string message = 2;
+}
+
+service LoyoIngestService {
+	rpc IngestEvents(LoyoIngestRequest) returns (LoyoIngestResponse);
+}
